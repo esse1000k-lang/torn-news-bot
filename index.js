@@ -10,9 +10,16 @@ const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
 const MY_ID = process.env.TELEGRAM_MY_ID;
 
 const RSS_FEEDS = [
-  // 구글 뉴스
+  // 구글 뉴스 - 토네이도 캐시
   'https://news.google.com/rss/search?q=tornado+cash&hl=ko&gl=KR&ceid=KR:ko',
   'https://news.google.com/rss/search?q=tornado+cash&hl=en&gl=US&ceid=US:en',
+  // 구글 뉴스 - 한국어 키워드
+  'https://news.google.com/rss/search?q=%ED%86%A0%EB%84%A4%EC%9D%B4%EB%8F%84+%EC%BA%90%EC%8B%9C&hl=ko&gl=KR&ceid=KR:ko',
+  'https://news.google.com/rss/search?q=%ED%95%B4%ED%82%A7&hl=ko&gl=KR&ceid=KR:ko',
+  'https://news.google.com/rss/search?q=%ED%95%B4%EC%BB%A4&hl=ko&gl=KR&ceid=KR:ko',
+  'https://news.google.com/rss/search?q=%ED%94%84%EB%9D%BC%EC%9D%B4%EB%B2%84%EC%8B%9C&hl=ko&gl=KR&ceid=KR:ko',
+  // 구글 뉴스 - TORN 토큰
+  'https://news.google.com/rss/search?q=TORN&hl=en&gl=US&ceid=US:en',
   // 코인 전문 미디어
   'https://cointelegraph.com/rss/tag/tornado-cash',
   'https://decrypt.co/feed',
@@ -151,9 +158,10 @@ async function fetchNews() {
       for (const item of feed.items.slice(0, 5)) {
         if (isAlreadySeen(item.link)) continue;
 
-        // tornado cash 관련 아닌 것 필터 (구글뉴스 외 피드)
+        // 관련 키워드 체크 (구글뉴스 외 피드는 필터링)
         const text = (item.title + ' ' + (item.contentSnippet || '')).toLowerCase();
-        if (!feedUrl.includes('google') && !text.includes('tornado')) continue;
+        const keywords = ['tornado', 'hack', 'hacker', 'privacy', 'priv'];
+        if (!feedUrl.includes('google') && !keywords.some(k => text.includes(k))) continue;
 
         console.log(`새 뉴스 [${source}]:`, item.title);
         const summary = await summarize(item.title, item.contentSnippet);
